@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 // Типы оружия
-enum WeaponType { ak74, svd, rpk74, akc74y, akm, rpk, pk, ac, pm, pya, aps }
+enum WeaponType { ak74, svd, rpk74, pm, pya, aps, aks74u, akm, rpk, pk, aс }
 
 // Направления отклонений
 enum HDir { left, right }
@@ -60,96 +60,96 @@ class CalculatorScreen extends StatefulWidget {
 class _CalculatorScreenState extends State<CalculatorScreen> {
   final List<Weapon> weapons = [
     Weapon(
-      type: WeaponType.ak74,
-      name: '5,45 мм АК-74 и его модификации (кроме укороченной версии)',
-      verticalCoefficient: 20.0,
-      horizontalCoefficient: 26.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
-    Weapon(
-      type: WeaponType.svd,
-      name: '7,62 мм СВД и её модификации',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 16.0,
-      maxDeviation: 3.0,
-      gabarit: 8.0,
-    ),
+      type: WeaponType.ak74,
+      name: 'АК-74',
+      verticalCoefficient: 20.0,
+      horizontalCoefficient: 26.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
     Weapon(
-      type: WeaponType.rpk74,
-      name: '5,45 мм РПК-74 и его модификации',
-      verticalCoefficient: 14.0,
-      horizontalCoefficient: 18.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
-    Weapon(
-      type: WeaponType.akc74y,
-      name: '5,45 мм АКС-74У и его модификации',
-      verticalCoefficient: 18.0,
-      horizontalCoefficient: 37.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
+      type: WeaponType.svd,
+      name: 'СВД',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 16.0,
+      maxDeviation: 3.0,
+      gabarit: 8.0,
+    ),
     Weapon(
-      type: WeaponType.akm,
-      name: '7,62 мм АКМ и его модификации',
-      verticalCoefficient: 20.0,
-      horizontalCoefficient: 26.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
-    Weapon(
-      type: WeaponType.rpk,
-      name: '7,62 мм РПК и его модификации',
-      verticalCoefficient: 14.0,
-      horizontalCoefficient: 18.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
+      type: WeaponType.rpk74,
+      name: 'РПК-74',
+      verticalCoefficient: 14.0,
+      horizontalCoefficient: 18.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
     Weapon(
-      type: WeaponType.pk,
-      name: '7,62 мм ПК и его модификации',
-      verticalCoefficient: 12.0,
-      horizontalCoefficient: 15.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
-    Weapon(
-      type: WeaponType.ac,
-      name: '9 мм АС "Вал" и ВСС "Винторез"',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 32.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-    ),
+      type: WeaponType.pm,
+      name: 'ПМ',
+      verticalCoefficient: 10.0,  // ⚠️ ЗАМЕНИТЕ: см на 1 номер целика
+      horizontalCoefficient: 10.0,// ⚠️ ЗАМЕНИТЕ: см на 1 мм смещения
+      maxDeviation: 5.0,          // ⚠️ ЗАМЕНИТЕ
+      gabarit: 10.0,              // ⚠️ ЗАМЕНИТЕ
+      isPistol: true,
+    ),
     Weapon(
-      type: WeaponType.pm,
-      name: '9 мм ПМ',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 32.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-      isPistol: true,
-    ),
+      type: WeaponType.pya,
+      name: 'ПЯ',
+      verticalCoefficient: 10.0,  // ⚠️ ЗАМЕНИТЕ: см на 1 номер целика
+      horizontalCoefficient: 10.0,// ⚠️ ЗАМЕНИТЕ: см на 1 мм смещения
+      maxDeviation: 5.0,          // ⚠️ ЗАМЕНИТЕ
+      gabarit: 10.0,              // ⚠️ ЗАМЕНИТЕ
+      isPistol: true,
+    ),
     Weapon(
-      type: WeaponType.pya,
-      name: '9 мм ПЯ',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 32.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-      isPistol: true,
-    ),
-    Weapon(
-      type: WeaponType.aps,
-      name: '9 мм АПС',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 32.0,
-      maxDeviation: 5.0,
-      gabarit: 15.0,
-      isPistol: true,
-    ),
+      type: WeaponType.aps,
+      name: 'АПС',
+      verticalCoefficient: 10.0,  // ⚠️ ЗАМЕНИТЕ: см на 1 номер целика
+      horizontalCoefficient: 10.0,// ⚠️ ЗАМЕНИТЕ: см на 1 мм смещения
+      maxDeviation: 5.0,          // ⚠️ ЗАМЕНИТЕ
+      gabarit: 10.0,              // ⚠️ ЗАМЕНИТЕ
+      isPistol: true,
+    ),
+    Weapon(
+      type: WeaponType.aks74u,
+      name: 'АКС-74У',
+      verticalCoefficient: 10.0,   // ⚠️ заглушка
+      horizontalCoefficient: 10.0, // ⚠️ заглушка
+      maxDeviation: 5.0,           // ⚠️ заглушка
+      gabarit: 15.0,               // ⚠️ заглушка
+    ),
+    Weapon(
+      type: WeaponType.akm,
+      name: 'АКМ',
+      verticalCoefficient: 10.0,   // ⚠️ заглушка
+      horizontalCoefficient: 10.0, // ⚠️ заглушка
+      maxDeviation: 5.0,           // ⚠️ заглушка
+      gabarit: 15.0,               // ⚠️ заглушка
+    ),
+    Weapon(
+      type: WeaponType.rpk,
+      name: 'РПК',
+      verticalCoefficient: 10.0,   // ⚠️ заглушка
+      horizontalCoefficient: 10.0, // ⚠️ заглушка
+      maxDeviation: 5.0,           // ⚠️ заглушка
+      gabarit: 15.0,               // ⚠️ заглушка
+    ),
+    Weapon(
+      type: WeaponType.pk,
+      name: 'ПК',
+      verticalCoefficient: 10.0,   // ⚠️ заглушка
+      horizontalCoefficient: 10.0, // ⚠️ заглушка
+      maxDeviation: 5.0,           // ⚠️ заглушка
+      gabarit: 15.0,               // ⚠️ заглушка
+    ),
+    Weapon(
+      type: WeaponType.aс,
+      name: 'АС Вал',
+      verticalCoefficient: 10.0,   // ⚠️ заглушка
+      horizontalCoefficient: 10.0, // ⚠️ заглушка
+      maxDeviation: 5.0,           // ⚠️ заглушка
+      gabarit: 15.0,               // ⚠️ заглушка
+    ),
   ];
 
   // 0 - оружие, 1 - ввод отклонений, 2 - результат,
