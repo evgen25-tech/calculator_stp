@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 // Типы оружия
-enum WeaponType { ak74, svd, rpk74 }
+enum WeaponType { ak74, svd, rpk74, pm, pya, aps }
 
 // Направления отклонений
 enum HDir { left, right }
@@ -12,10 +12,11 @@ enum VDir { down, up }
 class Weapon {
   final WeaponType type;
   final String name;
-  final double verticalCoefficient;   // см в 1 оборот маховика по вертикали
-  final double horizontalCoefficient; // см в 1 мм боковой поправки
-  final double maxDeviation; // ⚠️ ограничительный коэффициент (допустимое отклонение), см
-  final double gabarit;      // ⚠️ габарит кучности, см
+  final double verticalCoefficient;   // см на 1 оборот (винтовки) / см на 1 номер целика (пистолеты)
+  final double horizontalCoefficient; // см на 1 мм смещения
+  final double maxDeviation; // ограничительный коэффициент (допустимое отклонение), см
+  final double gabarit;      // габарит кучности, см
+  final bool isPistol;       // пистолетный поток этапов (5 этапов)
 
   Weapon({
     required this.type,
@@ -24,6 +25,7 @@ class Weapon {
     required this.horizontalCoefficient,
     required this.maxDeviation,
     required this.gabarit,
+    this.isPistol = false,
   });
 }
 
@@ -58,45 +60,115 @@ class CalculatorScreen extends StatefulWidget {
 class _CalculatorScreenState extends State<CalculatorScreen> {
   final List<Weapon> weapons = [
     Weapon(
-      type: WeaponType.ak74,
-      name: 'АК-74',
-      verticalCoefficient: 20.0,
-      horizontalCoefficient: 26.0,
-      maxDeviation: 5.0,  // ⚠️ ЗАМЕНИТЕ на ваше значение
-      gabarit: 15.0,      // ⚠️ ЗАМЕНИТЕ на ваше значение
-    ),
+      type: WeaponType.ak74,
+      name: '5,45 мм АК-74 и его модификации (кроме укороченной версии)',
+      verticalCoefficient: 20.0,
+      horizontalCoefficient: 26.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.svd,
+      name: '7,62 мм СВД и её модификации',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 16.0,
+      maxDeviation: 3.0,
+      gabarit: 8.0,
+    ),
     Weapon(
-      type: WeaponType.svd,
-      name: 'СВД',
-      verticalCoefficient: 16.0,
-      horizontalCoefficient: 16.0,
-      maxDeviation: 3.0,  // ⚠️ ЗАМЕНИТЕ на ваше значение
-      gabarit: 8.0,      // ⚠️ ЗАМЕНИТЕ на ваше значение
-    ),
+      type: WeaponType.rpk74,
+      name: '5,45 мм РПК-74 и его модификации',
+      verticalCoefficient: 14.0,
+      horizontalCoefficient: 18.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.akc74y,
+      name: '5,45 мм АКС-74У и его модификации',
+      verticalCoefficient: 18.0,
+      horizontalCoefficient: 37.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
     Weapon(
-      type: WeaponType.rpk74,
-      name: 'РПК-74',
-      verticalCoefficient: 14.0,
-      horizontalCoefficient: 18.0,
-      maxDeviation: 5.0,  // ⚠️ ЗАМЕНИТЕ на ваше значение
-      gabarit: 15.0,      // ⚠️ ЗАМЕНИТЕ на ваше значение
-    ),
+      type: WeaponType.akm,
+      name: '7,62 мм АКМ и его модификации',
+      verticalCoefficient: 20.0,
+      horizontalCoefficient: 26.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.rpk,
+      name: '7,62 мм РПК и его модификации',
+      verticalCoefficient: 14.0,
+      horizontalCoefficient: 18.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.pk,
+      name: '7,62 мм ПК и его модификации',
+      verticalCoefficient: 12.0,
+      horizontalCoefficient: 15.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.ac,
+      name: '9 мм АС "Вал" и ВСС "Винторез"',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 32.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+    ),
+    Weapon(
+      type: WeaponType.pm,
+      name: '9 мм ПМ',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 32.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+      isPistol: true,
+    ),
+    Weapon(
+      type: WeaponType.pya,
+      name: '9 мм ПЯ',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 32.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+      isPistol: true,
+    ),
+    Weapon(
+      type: WeaponType.aps,
+      name: '9 мм АПС',
+      verticalCoefficient: 16.0,
+      horizontalCoefficient: 32.0,
+      maxDeviation: 5.0,
+      gabarit: 15.0,
+      isPistol: true,
+    ),
   ];
 
-  // 0 - выбор оружия, 1 - ввод отклонений, 2 - результат
+  // 0 - оружие, 1 - ввод отклонений, 2 - результат,
+  // 3 - горизонтальное изменение (пистолеты), 4 - миллиметры (пистолеты)
   int step = 0;
   Weapon? selectedWeapon;
 
   final TextEditingController horizontalController = TextEditingController();
   final TextEditingController verticalController = TextEditingController();
+  final TextEditingController h4Controller = TextEditingController();
 
   HDir hDir = HDir.right;
   VDir vDir = VDir.up;
+  HDir hDir4 = HDir.right;
 
-  double? verticalResult;   // оборота
-  double? horizontalResult; // миллиметров
-  double? distance;         // дистанция СТП от начала координат
-  bool? satisfactory;       // кучность удовлетворительная?
+  double? verticalResult;   // оборота (винтовки)
+  double? horizontalResult; // миллиметры (винтовки)
+  double? distance;
+  bool? satisfactory;
 
   bool get _horizontalValid =>
       horizontalController.text.isNotEmpty &&
@@ -108,16 +180,28 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   bool get _bothValid => _horizontalValid && _verticalValid;
 
+  bool get _h4Valid =>
+      h4Controller.text.isNotEmpty &&
+      double.tryParse(h4Controller.text) != null;
+
+  bool get _isPistol => selectedWeapon != null && selectedWeapon!.isPistol;
+
   @override
   void dispose() {
     horizontalController.dispose();
     verticalController.dispose();
+    h4Controller.dispose();
     super.dispose();
   }
 
-  // Формат числа: 15.0 -> "15", 12.5 -> "12.5"
   String _fmt(double x) =>
       x == x.roundToDouble() ? x.toInt().toString() : x.toString();
+
+  int _totalSteps() {
+    if (step >= 3) return 5;
+    if (step == 2 && satisfactory == false && _isPistol) return 5;
+    return 3;
+  }
 
   void _calculate() {
     if (selectedWeapon == null) return;
@@ -125,16 +209,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     final v = double.tryParse(verticalController.text) ?? 0;
 
     setState(() {
-      // Независимая формула: расстояние от точки СТП до начала координат
       distance = sqrt(v * v + h * h);
-
-      // Сравнение с ограничительным коэффициентом
       satisfactory = distance! <= selectedWeapon!.maxDeviation;
-
-      // Расчёты второго этапа (показываются, если кучность НЕ удовлетворительная)
       verticalResult = v / selectedWeapon!.verticalCoefficient;
       horizontalResult = h / selectedWeapon!.horizontalCoefficient;
-
       step = 2;
     });
   }
@@ -145,8 +223,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       selectedWeapon = null;
       horizontalController.clear();
       verticalController.clear();
+      h4Controller.clear();
       hDir = HDir.right;
       vDir = VDir.up;
+      hDir4 = HDir.right;
       verticalResult = null;
       horizontalResult = null;
       distance = null;
@@ -157,11 +237,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   // ---------- Вспомогательные элементы ----------
 
   Widget _stepIndicator() {
+    final total = _totalSteps();
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(3, (i) {
+          children: List.generate(total, (i) {
             return Container(
               width: 12,
               height: 12,
@@ -175,7 +256,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         ),
         SizedBox(height: 8),
         Text(
-          'Шаг ${step + 1} из 3',
+          'Шаг ${step + 1} из $total',
           style: TextStyle(color: Colors.white54, fontSize: 13),
         ),
       ],
@@ -221,6 +302,28 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
+  Widget _directionRow(HDir value, ValueChanged<HDir> onChanged) {
+    return Row(
+      children: [
+        Expanded(
+          child: _choiceButton(
+            'влево',
+            value == HDir.left,
+            () => onChanged(HDir.left),
+          ),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: _choiceButton(
+            'вправо',
+            value == HDir.right,
+            () => onChanged(HDir.right),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _nextButton(String text, VoidCallback? onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -246,7 +349,18 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  // Дробь: числитель / знаменатель крупным шрифтом
+  Widget _resultContainer(List<Widget> rows) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xFF2D4A2D),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade700, width: 1),
+      ),
+      child: Column(children: rows),
+    );
+  }
+
   Widget _fraction(String numerator, String denominator) {
     return IntrinsicWidth(
       child: Column(
@@ -327,35 +441,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 20),
-        // Пункт 1: горизонталь + влево/вправо
         Text(
           'Введите отклонение СТП по горизонтали',
           style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _choiceButton(
-                'влево',
-                hDir == HDir.left,
-                () => setState(() => hDir = HDir.left),
-              ),
-            ),
-            SizedBox(width: 8),
-            Expanded(
-              child: _choiceButton(
-                'вправо',
-                hDir == HDir.right,
-                () => setState(() => hDir = HDir.right),
-              ),
-            ),
-          ],
-        ),
+        _directionRow(hDir, (d) => setState(() => hDir = d)),
         SizedBox(height: 8),
         _inputField(horizontalController, 'Например: 32'),
         SizedBox(height: 20),
-        // Пункт 2: вертикаль + вверх/вниз
         Text(
           'Введите отклонение СТП по вертикали',
           style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -404,6 +498,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     final numerator =
         '$letter${horizontalController.text.trim()}$sign${verticalController.text.trim()}';
 
+    // Пистолеты: на сколько номеров целика заменить
+    final v = double.tryParse(verticalController.text) ?? 0;
+    final sightDelta = (v / w.verticalCoefficient).round();
+    final sightWord = vDir == VDir.up ? 'меньше' : 'больше';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -421,7 +520,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         SizedBox(height: 24),
 
         if (satisfactory == true) ...[
-          // КУЧНОСТЬ УДОВЛЕТВОРИТЕЛЬНАЯ
+          // КУЧНОСТЬ УДОВЛЕТВОРИТЕЛЬНАЯ (все оружия)
           Text(
             'Кучность боя удовлетворительная, произведите запись ниже в карточку учёта состояния оружия (Ф н 15-арт)',
             style: TextStyle(fontSize: 17, color: Colors.white, height: 1.4),
@@ -431,55 +530,199 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           Center(
             child: _fraction(numerator, _fmt(w.gabarit)),
           ),
-        ] else ...[
-          // КУЧНОСТЬ НЕ УДОВЛЕТВОРИТЕЛЬНАЯ
+          SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _backButton(() => setState(() => step = 1))),
+              SizedBox(width: 12),
+              Expanded(child: _nextButton('Начать заново', _restart)),
+            ],
+          ),
+        ] else if (!w.isPistol) ...[
+          // НЕУДОВЛЕТВОРИТЕЛЬНАЯ: ВИНТОВКИ (обороты + миллиметры)
           Text(
             'Кучность боя не удовлетворительная, произведите следующие изменения в прицельное приспособление',
             style: TextStyle(fontSize: 17, color: Colors.white, height: 1.4),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 24),
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Color(0xFF2D4A2D),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green.shade700, width: 1),
+          _resultContainer([
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                vDir == VDir.up ? 'выкрутить' : 'вкрутить',
+                style: TextStyle(fontSize: 15, color: Colors.white70),
+              ),
             ),
-            child: Column(
+            SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      verticalResult!.toStringAsFixed(2),
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    Text('оборота', style: TextStyle(fontSize: 18, color: Colors.white70)),
-                  ],
+                Text(
+                  verticalResult!.toStringAsFixed(2),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-                SizedBox(height: 15),
-                Divider(color: Colors.white24),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      horizontalResult!.toStringAsFixed(2),
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    Text('миллиметров', style: TextStyle(fontSize: 18, color: Colors.white70)),
-                  ],
-                ),
+                Text('оборота', style: TextStyle(fontSize: 18, color: Colors.white70)),
               ],
             ),
+            SizedBox(height: 15),
+            Divider(color: Colors.white24),
+            SizedBox(height: 15),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                hDir == HDir.left ? 'сдвинуть влево' : 'сдвинуть вправо',
+                style: TextStyle(fontSize: 15, color: Colors.white70),
+              ),
+            ),
+            SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  horizontalResult!.toStringAsFixed(2),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                Text('миллиметров', style: TextStyle(fontSize: 18, color: Colors.white70)),
+              ],
+            ),
+          ]),
+          SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _backButton(() => setState(() => step = 1))),
+              SizedBox(width: 12),
+              Expanded(child: _nextButton('Начать заново', _restart)),
+            ],
+          ),
+        ] else ...[
+          // НЕУДОВЛЕТВОРИТЕЛЬНАЯ: ПИСТОЛЕТЫ (только вертикаль, целик)
+          Text(
+            'Кучность боя не удовлетворительная, произведите следующие изменения в прицельное приспособление',
+            style: TextStyle(fontSize: 17, color: Colors.white, height: 1.4),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 24),
+          _resultContainer([
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'замените целик на',
+                style: TextStyle(fontSize: 15, color: Colors.white70),
+              ),
+            ),
+            SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$sightDelta',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                Text(sightWord, style: TextStyle(fontSize: 18, color: Colors.white70)),
+              ],
+            ),
+          ]),
+          SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _backButton(() => setState(() => step = 1))),
+              SizedBox(width: 12),
+              Expanded(
+                child: _nextButton('Далее', () => setState(() {
+                      hDir4 = hDir;
+                      step = 3;
+                    })),
+              ),
+            ],
           ),
         ],
+      ],
+    );
+  }
 
+  // ШАГ 4 (пистолеты): ввод горизонтального изменения
+  Widget _buildHorizontalFixStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Введите горизонтальное изменение',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Оружие: ${selectedWeapon!.name}',
+          style: TextStyle(color: Colors.white54, fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24),
+        _directionRow(hDir4, (d) => setState(() => hDir4 = d)),
+        SizedBox(height: 8),
+        _inputField(h4Controller, 'Например: 12'),
         SizedBox(height: 24),
         Row(
           children: [
-            Expanded(child: _backButton(() => setState(() => step = 1))),
+            Expanded(child: _backButton(() => setState(() => step = 2))),
+            SizedBox(width: 12),
+            Expanded(
+              child: _nextButton(
+                'Рассчитать',
+                _h4Valid ? () => setState(() => step = 4) : null,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ШАГ 5 (пистолеты): результат в миллиметрах
+  Widget _buildMillimeterStep() {
+    final w = selectedWeapon!;
+    final h4 = double.tryParse(h4Controller.text) ?? 0;
+    final mm = h4 / w.horizontalCoefficient;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Результат',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Оружие: ${w.name}',
+          style: TextStyle(color: Colors.white54, fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24),
+        _resultContainer([
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              hDir4 == HDir.left ? 'сдвинуть вправо' : 'сдвинуть влево',
+              style: TextStyle(fontSize: 15, color: Colors.white70),
+            ),
+          ),
+          SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                mm.toStringAsFixed(2),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              Text('миллиметров', style: TextStyle(fontSize: 18, color: Colors.white70)),
+            ],
+          ),
+        ]),
+        SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(child: _backButton(() => setState(() => step = 3))),
             SizedBox(width: 12),
             Expanded(child: _nextButton('Начать заново', _restart)),
           ],
@@ -507,6 +750,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 if (step == 0) _buildWeaponStep(),
                 if (step == 1) _buildInputStep(),
                 if (step == 2) _buildResultStep(),
+                if (step == 3) _buildHorizontalFixStep(),
+                if (step == 4) _buildMillimeterStep(),
               ],
             ),
           ),
