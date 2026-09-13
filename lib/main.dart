@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 // Типы оружия
-enum WeaponType { ak74, svd, rpk74, pm, pya, aps }
+enum WeaponType { ak74, svd, rpk74, akc74y, akm, rpk, pk, ac, pm, pya, aps }
 
 // Направления отклонений
 enum HDir { left, right }
