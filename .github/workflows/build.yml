@@ -22,10 +22,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.24.x'
-
-      - name: Flutter doctor
-        run: flutter doctor
 
       - name: Save app code
         run: |
@@ -38,12 +34,6 @@ jobs:
       - name: Restore app code
         run: cp /tmp/appsave/main.dart lib/main.dart
 
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Clean build
-        run: flutter clean
-
       - name: Build APK
         run: flutter build apk --release
 
@@ -52,3 +42,47 @@ jobs:
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Enable Linux desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Save app code
+        run: |
+          mkdir -p /tmp/appsave
+          cp lib/main.dart /tmp/appsave/main.dart
+
+      - name: Generate Linux project
+        run: flutter create . --platforms=linux
+
+      - name: Restore app code
+        run: cp /tmp/appsave/main.dart lib/main.dart
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Package bundle
+        run: |
+          cd build/linux/x64/release
+          zip -r calculator_linux.zip bundle
+
+      - name: Upload Linux bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-linux
+          path: build/linux/x64/release/calculator_linux.zip
