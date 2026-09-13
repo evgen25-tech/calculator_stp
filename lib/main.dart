@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 // Типы оружия
-enum WeaponType { ak74, svd, rpk74, pm, pya, aps, aks74u, akm, rpk, pk, aс }
+enum WeaponType { ak74, svd, rpk74, pm, pya, aps, aks74u, akm, rpk, pk, ac }
 
 // Направления отклонений
 enum HDir { left, right }
@@ -143,7 +143,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       gabarit: 15.0,               // ⚠️ заглушка
     ),
     Weapon(
-      type: WeaponType.aс,
+      type: WeaponType.ac,
       name: 'АС Вал',
       verticalCoefficient: 10.0,   // ⚠️ заглушка
       horizontalCoefficient: 10.0, // ⚠️ заглушка
